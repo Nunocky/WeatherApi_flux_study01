@@ -1,6 +1,5 @@
 package org.nunocky.weatherapi_flux_study01.store
 
-import android.util.Log
 import org.greenrobot.eventbus.Subscribe
 import org.nunocky.weatherapi_flux_study01.action.Action
 import org.nunocky.weatherapi_flux_study01.action.WeatherApiActions
@@ -21,15 +20,18 @@ class Store(private val dispatcher: Dispatcher) {
         }
     }
 
-    private var weatherResponse: WeatherResponse? = null
-
-    val weather: WeatherResponse?
-        get() = weatherResponse
-
+    private var weatherResponse = WeatherResponse()
     private var processing: Boolean = false
+    var networkException: Throwable? = null
+
+    val response: WeatherResponse
+        get() = weatherResponse
 
     val isProcessing: Boolean
         get() = processing
+
+    val isError: Boolean
+        get() = (networkException != null)
 
     @Subscribe
     fun onEvent(event: Any) {
@@ -38,7 +40,8 @@ class Store(private val dispatcher: Dispatcher) {
             when (event.type) {
                 WeatherApiActions.FETCH_START -> {
                     processing = true
-                    weatherResponse = null
+                    weatherResponse = WeatherResponse()
+                    networkException = null
                     emitStoreChange()
                 }
 
@@ -46,16 +49,17 @@ class Store(private val dispatcher: Dispatcher) {
                     processing = false
                     val hash = event.getData()
                     weatherResponse = hash?.get("response") as WeatherResponse
+                    networkException = null
                     emitStoreChange()
                 }
 
                 WeatherApiActions.NETWORK_ERROR -> {
                     processing = false
-                    weatherResponse = null;
+                    weatherResponse = WeatherResponse()
 
                     val hash = event.getData()
                     val exception = hash?.get("exception") as Exception
-                    Log.d(TAG, exception.toString())
+                    networkException = exception
                     emitStoreChange()
                 }
             }

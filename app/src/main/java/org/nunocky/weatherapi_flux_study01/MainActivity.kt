@@ -59,19 +59,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
+        if (store.isError) {
+
+//            store.networkException?.let { ex ->
+//                Log.d(TAG, ex.toString())
+//            }
+
+            button.isEnabled = true
+            tvTitle.text = "Network Error"
+            tvDescription.text = ""
+            imageView.setImageBitmap(null)
+            return
+        }
+
         if (store.isProcessing) {
             button.isEnabled = false
+
             tvTitle.text = ""
             tvDescription.text = ""
             imageView.setImageBitmap(null)
         } else {
             button.isEnabled = true
 
-            store.weather?.let {
-                tvTitle.text = it.title
-                tvDescription.text = it.description.text
-                Picasso.get().load(it.forecasts[0].image.url).into(imageView)
-            }
+            tvTitle.text = store.response.title
+            tvDescription.text = store.response.description.text
+            Picasso.get().load(store.response.forecasts[0].image.url).into(imageView)
         }
     }
 
