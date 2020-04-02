@@ -1,41 +1,41 @@
 package org.nunocky.weatherapi_flux_study01.api
 
 class WeatherResponse {
-    var pinPointLocations: List<PinPointLocation>? = null
-    var link: String? = null
-    var forecasts: List<Forecast>? = null
-    var location: Location? = null
-    var publicTime: String? = null
-    var copyright: Copyright? = null
-    var title: String? = null
-    var description: Description? = null
+    var pinPointLocations: List<PinPointLocation> = arrayListOf()
+    var link: String = ""
+    var forecasts: List<Forecast> = arrayListOf()
+    var location = Location()
+    var publicTime = ""
+    var copyright = Copyright()
+    var title: String = ""
+    var description = Description()
 
     class PinPointLocation {
-        var link: String? = null
-        var name: String? = null
+        var link = ""
+        var name = ""
     }
 
     class Forecast {
-        var dateLavel: String? = null
-        var telop: String? = null
-        var temperature: Temperature? = null
-        var image: Image? = null
+        var dateLavel = ""
+        var telop = ""
+        var temperature = Temperature()
+        var image = Image()
     }
 
     class Temperature {
-        var min: TemperatureSub? = null
-        var max: TemperatureSub? = null
+        var min = TemperatureSub()
+        var max = TemperatureSub()
 
         class TemperatureSub {
-            var celsius: String? = null
-            var fahrenheit: String? = null
+            var celsius = ""
+            var fahrenheit = ""
         }
     }
 
     class Image {
         var width = 0
-        var url: String? = null
-        var title: String? = null
+        var url = ""
+        var title = ""
         var height = 0
     }
 
@@ -46,19 +46,19 @@ class WeatherResponse {
     }
 
     class Copyright {
-        var provider: List<Provider>? = null
-        var link: String? = null
-        var title: String? = null
-        var image: Image? = null
+        var provider: List<Provider> = arrayListOf()
+        var link = ""
+        var title = ""
+        var image = Image()
 
         class Provider {
-            var link: String? = null
-            var name: String? = null
+            var link = ""
+            var name = ""
         }
     }
 
     class Description {
-        var text: String? = null
-        var publicTime: String? = null
+        var text = ""
+        var publicTime = ""
     }
 }
