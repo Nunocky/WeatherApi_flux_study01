@@ -69,13 +69,8 @@ class MainActivity : AppCompatActivity() {
 
             store.weather?.let {
                 tvTitle.text = it.title
-                tvDescription.text = it.description?.text
-
-                it.forecasts?.let { forecasts ->
-                    forecasts[0].image?.url?.let { url ->
-                        Picasso.get().load(url).into(imageView)
-                    }
-                }
+                tvDescription.text = it.description.text
+                Picasso.get().load(it.forecasts[0].image.url).into(imageView)
             }
         }
     }
