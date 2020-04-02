@@ -1,0 +1,2 @@
+rootProject.name='WeatherApi_flux_Study01'
+include ':app'
