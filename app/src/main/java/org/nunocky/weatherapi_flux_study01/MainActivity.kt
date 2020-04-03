@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     private val dispatcher = Dispatcher.get()
     private val actionCreator = ActionCreator.get(dispatcher)
-    private val store = Store.get(dispatcher)
+    private val store = Store.get()
 
     private lateinit var button: Button
     private lateinit var tvTitle: TextView
@@ -42,8 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        dispatcher.register(this)
+        store.register(this)
         dispatcher.register(store)
 
         updateUI()
@@ -51,7 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        dispatcher.unregister(this)
+        store.unregister(this)
         dispatcher.unregister(store)
     }
 
