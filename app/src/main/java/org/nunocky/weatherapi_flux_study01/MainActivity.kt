@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
 
         dispatcher.register(this)
         dispatcher.register(store)
+
+        updateUI()
     }
 
     override fun onPause() {
@@ -54,7 +56,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        actionCreator.cancelJobs()
+        if (isFinishing) {
+            actionCreator.cancelJobs()
+        }
         super.onDestroy()
     }
 
@@ -83,7 +87,14 @@ class MainActivity : AppCompatActivity() {
 
             tvTitle.text = store.response.title
             tvDescription.text = store.response.description.text
-            Picasso.get().load(store.response.forecasts[0].image.url).into(imageView)
+
+            if (store.response.forecasts.count() > 0) {
+                store.response.forecasts[0].image.url.apply {
+                    if (this.isNotEmpty()) {
+                        Picasso.get().load(this).into(imageView)
+                    }
+                }
+            }
         }
     }
 
