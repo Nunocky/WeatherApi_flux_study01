@@ -14,6 +14,8 @@ import kotlin.coroutines.CoroutineContext
 
 class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
     companion object {
+        private const val TAG = "ActionCreator"
+
         private var instance: ActionCreator? = null
 
         fun get(dispatcher: Dispatcher): ActionCreator {
@@ -53,10 +55,9 @@ class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
     }
 
     fun fetchWeather(cityId: Int) {
+        dispatcher.dispatch(WeatherApiActions.FETCH_START)
+
         launch {
-
-            dispatcher.dispatch(WeatherApiActions.FETCH_START)
-
             runCatching {
                 weatherApi.getWhether("$cityId")
                 //throw NetworkErrorException("test")
