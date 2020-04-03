@@ -1,20 +1,20 @@
 package org.nunocky.weatherapi_flux_study01.store
 
+import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.nunocky.weatherapi_flux_study01.action.Action
 import org.nunocky.weatherapi_flux_study01.action.WeatherApiActions
 import org.nunocky.weatherapi_flux_study01.api.WeatherResponse
-import org.nunocky.weatherapi_flux_study01.dispatcher.Dispatcher
 
-class Store(private val dispatcher: Dispatcher) {
+class Store() {
     companion object {
         private const val TAG = "Store"
 
         private var instance: Store? = null
 
-        fun get(dispatcher: Dispatcher): Store {
+        fun get(): Store {
             if (instance == null) {
-                instance = Store(dispatcher)
+                instance = Store()
             }
             return instance!!
         }
@@ -32,6 +32,14 @@ class Store(private val dispatcher: Dispatcher) {
 
     val isError: Boolean
         get() = (networkException != null)
+
+    fun register(cls: Any?) {
+        EventBus.getDefault().register(cls)
+    }
+
+    fun unregister(cls: Any?) {
+        EventBus.getDefault().unregister(cls)
+    }
 
     @Subscribe
     fun onEvent(event: Any) {
@@ -67,7 +75,7 @@ class Store(private val dispatcher: Dispatcher) {
     }
 
     private fun emitStoreChange() {
-        dispatcher.emitChange(ApiStoreChangeEvent())
+        EventBus.getDefault().post(ApiStoreChangeEvent())
     }
 }
 

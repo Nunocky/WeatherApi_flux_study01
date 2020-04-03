@@ -1,9 +1,6 @@
 package org.nunocky.weatherapi_flux_study01.action
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.nunocky.weatherapi_flux_study01.api.IWeatherApi
 import org.nunocky.weatherapi_flux_study01.dispatcher.Dispatcher
 import retrofit2.Retrofit
@@ -58,6 +55,7 @@ class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
         dispatcher.dispatch(WeatherApiActions.FETCH_START)
 
         launch {
+            delay(1000)
             runCatching {
                 weatherApi.getWhether("$cityId")
                 //throw NetworkErrorException("test")
