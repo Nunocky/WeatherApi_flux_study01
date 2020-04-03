@@ -23,11 +23,15 @@ class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
                 instance = ActionCreator(dispatcher)
             }
 
+            if (instance!!.job.isCancelled) {
+                instance!!.job = Job()
+            }
+
             return instance!!
         }
     }
 
-    private val job = Job()
+    var job = Job()
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
