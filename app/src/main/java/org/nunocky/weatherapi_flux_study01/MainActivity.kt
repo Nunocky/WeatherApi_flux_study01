@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val dispatcher = Dispatcher.get()
-    private val actionCreator = ActionCreator.get(dispatcher)
+    private val actionCreator: ActionCreator by viewModels { ActionCreator.Factory(application, dispatcher) }
     private val store: Store by viewModels()
 
     private lateinit var button: Button
@@ -55,20 +55,8 @@ class MainActivity : AppCompatActivity() {
         dispatcher.unregister(store)
     }
 
-    override fun onDestroy() {
-        if (isFinishing) {
-            actionCreator.cancelJobs()
-        }
-        super.onDestroy()
-    }
-
     private fun updateUI() {
         if (store.isError) {
-
-//            store.networkException?.let { ex ->
-//                Log.d(TAG, ex.toString())
-//            }
-
             button.isEnabled = true
             tvTitle.text = "Network Error"
             tvDescription.text = ""

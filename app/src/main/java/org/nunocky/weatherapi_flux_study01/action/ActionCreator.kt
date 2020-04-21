@@ -1,6 +1,13 @@
 package org.nunocky.weatherapi_flux_study01.action
 
-import kotlinx.coroutines.*
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.nunocky.weatherapi_flux_study01.api.IWeatherApi
 import org.nunocky.weatherapi_flux_study01.dispatcher.Dispatcher
 import retrofit2.Retrofit
@@ -9,29 +16,26 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import kotlin.coroutines.CoroutineContext
 
 
-class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
-    companion object {
-        private const val TAG = "ActionCreator"
+// MEMO : このサンプルでは ActionCreatorは AndroidViewModelのサブクラスである必要はない (ViewModelで十分)が、今後の実装のサンプルとしてコードを残しておく。
 
-        private var instance: ActionCreator? = null
+class ActionCreator(application: Application, private val dispatcher: Dispatcher) : AndroidViewModel(application), CoroutineScope {
 
-        fun get(dispatcher: Dispatcher): ActionCreator {
-            if (instance == null) {
-                instance = ActionCreator(dispatcher)
-            }
-
-            if (instance!!.job.isCancelled) {
-                instance!!.job = Job()
-            }
-
-            return instance!!
+    class Factory(private val application: Application, private val dispatcher: Dispatcher) : ViewModelProvider.NewInstanceFactory() {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return ActionCreator(application, dispatcher) as T
         }
     }
 
-    var job = Job()
+    companion object {
+        private const val TAG = "ActionCreator"
+    }
+
+    // コルーチンの実行コンテキスト
+    private var job = Job()
 
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.IO + job
 
     private var weatherApi: IWeatherApi
 
@@ -51,7 +55,8 @@ class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
         }
     }
 
-    fun cancelJobs() {
+    override fun onCleared() {
+        super.onCleared()
         job.cancel()
     }
 
@@ -59,7 +64,7 @@ class ActionCreator(private val dispatcher: Dispatcher) : CoroutineScope {
         dispatcher.dispatch(WeatherApiActions.FETCH_START)
 
         launch {
-            delay(1000)
+
             runCatching {
                 weatherApi.getWhether("$cityId")
                 //throw NetworkErrorException("test")
