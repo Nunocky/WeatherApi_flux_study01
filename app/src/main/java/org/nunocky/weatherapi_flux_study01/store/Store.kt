@@ -5,8 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import org.nunocky.weatherapi_flux_study01.action.Action
-import org.nunocky.weatherapi_flux_study01.action.WeatherApiActions
+import org.nunocky.weatherapi_flux_study01.action.WeatherApiAction
 import org.nunocky.weatherapi_flux_study01.api.WeatherResponse
 
 class Store : ViewModel() {
@@ -26,42 +25,73 @@ class Store : ViewModel() {
     private val _imageUrl = MutableLiveData("")
     val imageUrl: LiveData<String> = _imageUrl
 
+    // MEMO 一つのメソッドですべてのアクションを受けるか個別の受信メソッドを設けるかは選択は、開発するアプリケーションの規模次第。
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onEvent(event: Any) {
-        if (event is Action) {
+    fun on(action: WeatherApiAction<*>) {
+        when (action.type) {
+            WeatherApiAction.StartFetch.TYPE -> {
+                _processing.value = true
 
-            when (event.type) {
-                WeatherApiActions.FETCH_START -> {
-                    _processing.value = true
+                _title.value = ""
+                _description.value = ""
+                _imageUrl.value = ""
+            }
 
-                    _title.value = ""
-                    _description.value = ""
-                    _imageUrl.value = ""
-                }
+            WeatherApiAction.WeatherFetched.TYPE -> {
+                val response = action.data as WeatherResponse
 
-                WeatherApiActions.FETCH_WEATHER -> {
-                    val hash = event.getData()
-                    val response = hash?.get("response") as WeatherResponse
+                _processing.value = false
 
-                    _processing.value = false
+                _title.value = response.title
+                _description.value = response.description.text
+                _imageUrl.value = response.forecasts[0].image.url
+            }
 
-                    _title.value = response.title
-                    _description.value = response.description.text
-                    _imageUrl.value = response.forecasts[0].image.url
-                }
+            WeatherApiAction.NetworkError.TYPE -> {
+                val exception = action.data as Throwable
 
-                WeatherApiActions.NETWORK_ERROR -> {
-                    val hash = event.getData()
-                    val exception = hash?.get("exception") as Exception
+                _processing.value = false
 
-                    _processing.value = false
-
-                    _title.value = "Network Error"
-                    _description.value = exception.message
-                    _imageUrl.value = ""
-                }
+                _title.value = "Network Error"
+                _description.value = exception.message
+                _imageUrl.value = ""
             }
         }
     }
+
+
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun on(action: WeatherApiAction.StartFetch) {
+//        _processing.value = true
+//
+//        _title.value = ""
+//        _description.value = ""
+//        _imageUrl.value = ""
+//    }
+//
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun on(action: WeatherApiAction.WeatherFetched) {
+//
+//        val response = action.data
+//
+//        _processing.value = false
+//
+//        _title.value = response.title
+//        _description.value = response.description.text
+//        _imageUrl.value = response.forecasts[0].image.url
+//    }
+//
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun on(action: WeatherApiAction.NetworkError) {
+//        val exception = action.data
+//
+//        _processing.value = false
+//
+//        _title.value = "Network Error"
+//        _description.value = exception.message
+//        _imageUrl.value = ""
+//    }
+
 }
 

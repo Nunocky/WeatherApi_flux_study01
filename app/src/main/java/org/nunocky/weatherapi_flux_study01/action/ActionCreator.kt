@@ -61,20 +61,19 @@ class ActionCreator(application: Application, private val dispatcher: Dispatcher
     }
 
     fun fetchWeather(cityId: Int) {
-        dispatcher.dispatch(WeatherApiActions.FETCH_START)
-
         launch {
+            dispatcher.dispatch(WeatherApiAction.StartFetch(Unit))
             //delay(3000)
 
             runCatching {
                 weatherApi.getWhether("$cityId")
-                //throw NetworkErrorException("test")
+                //throw java.lang.RuntimeException("test")
             }
                 .onSuccess {
-                    dispatcher.dispatch(WeatherApiActions.FETCH_WEATHER, "response", it)
+                    dispatcher.dispatch(WeatherApiAction.WeatherFetched(it))
                 }
                 .onFailure {
-                    dispatcher.dispatch(WeatherApiActions.NETWORK_ERROR, "exception", it)
+                    dispatcher.dispatch(WeatherApiAction.NetworkError(it))
                 }
         }
     }
