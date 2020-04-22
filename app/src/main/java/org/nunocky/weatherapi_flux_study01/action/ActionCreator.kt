@@ -64,6 +64,7 @@ class ActionCreator(application: Application, private val dispatcher: Dispatcher
         dispatcher.dispatch(WeatherApiActions.FETCH_START)
 
         launch {
+            //delay(3000)
 
             runCatching {
                 weatherApi.getWhether("$cityId")
