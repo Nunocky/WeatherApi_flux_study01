@@ -61,9 +61,9 @@ class ActionCreator(application: Application, private val dispatcher: Dispatcher
     }
 
     fun fetchWeather(cityId: Int) {
-        dispatcher.dispatch(WeatherApiActions.FETCH_START)
-
         launch {
+            dispatcher.dispatch(WeatherApiAction.FETCH_START)
+
             //delay(3000)
 
             runCatching {
@@ -71,10 +71,10 @@ class ActionCreator(application: Application, private val dispatcher: Dispatcher
                 //throw NetworkErrorException("test")
             }
                 .onSuccess {
-                    dispatcher.dispatch(WeatherApiActions.FETCH_WEATHER, "response", it)
+                    dispatcher.dispatch(WeatherApiAction.FETCH_WEATHER, "response", it)
                 }
                 .onFailure {
-                    dispatcher.dispatch(WeatherApiActions.NETWORK_ERROR, "exception", it)
+                    dispatcher.dispatch(WeatherApiAction.NETWORK_ERROR, "exception", it)
                 }
         }
     }

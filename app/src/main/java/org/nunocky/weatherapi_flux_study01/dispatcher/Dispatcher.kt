@@ -1,8 +1,8 @@
 package org.nunocky.weatherapi_flux_study01.dispatcher
 
 import org.greenrobot.eventbus.EventBus
-import org.nunocky.weatherapi_flux_study01.action.Action
-import org.nunocky.weatherapi_flux_study01.store.StoreChangeEvent
+import org.nunocky.weatherapi_flux_study01.action.WeatherApiAction
+import org.nunocky.weatherapi_flux_study01.api.WeatherResponse
 
 class Dispatcher {
     companion object {
@@ -27,18 +27,29 @@ class Dispatcher {
     fun dispatch(type: String?, vararg data: Any?) {
         require(!isEmpty(type)) { "Type must not be empty" }
         require(data.size % 2 == 0) { "Data must be a valid list of key,value pairs" }
-        val actionBuilder: Action.Builder = Action.type(type)
-        var i = 0
-        while (i < data.size) {
-            val key = data[i++] as String?
-            val value = data[i++]
-            actionBuilder.bundle(key, value)
-        }
-        post(actionBuilder.build())
-    }
 
-    fun emitChange(event: StoreChangeEvent) {
-        post(event)
+        when (type) {
+            WeatherApiAction.FETCH_START -> {
+                val action = WeatherApiAction.StartFetch(Unit)
+                post(action)
+            }
+
+            WeatherApiAction.FETCH_WEATHER -> {
+                val response = data[1] as WeatherResponse
+                val action = WeatherApiAction.WeatherFetched(response)
+                post(action)
+            }
+
+            WeatherApiAction.NETWORK_ERROR -> {
+                val error = data[1] as Throwable
+                val action = WeatherApiAction.NetworkError(error)
+                post(action)
+            }
+
+            else -> {
+                throw RuntimeException("unknown action type")
+            }
+        }
     }
 
     private fun isEmpty(type: String?): Boolean {
