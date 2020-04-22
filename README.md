@@ -4,4 +4,4 @@ Livedoorの天気予報APIを Retrofit2で叩くサンプル。
 
 Fluxアーキテクチャの学習。
 
-![fig1](https://user-images.githubusercontent.com/750091/78315940-613c2880-7599-11ea-86fa-261575af2dfe.png)
+![fig](https://user-images.githubusercontent.com/750091/79936617-e2008d00-8492-11ea-8a91-7341a195ce23.png)
