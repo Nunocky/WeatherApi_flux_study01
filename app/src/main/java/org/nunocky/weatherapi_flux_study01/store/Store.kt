@@ -57,7 +57,7 @@ class Store : ViewModel() {
                     _processing.value = false
 
                     _title.value = "Network Error"
-                    _description.value = ""
+                    _description.value = exception.message
                     _imageUrl.value = ""
                 }
             }
