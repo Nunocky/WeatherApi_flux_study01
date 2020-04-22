@@ -38,5 +38,6 @@ package org.nunocky.weatherapi_flux_study01.action
 //}
 
 interface Action<out T> {
+    val type: String
     val data: T
 }
