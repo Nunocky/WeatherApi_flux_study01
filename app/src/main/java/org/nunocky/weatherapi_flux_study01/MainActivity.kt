@@ -6,12 +6,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.squareup.picasso.Picasso
-import org.greenrobot.eventbus.Subscribe
 import org.nunocky.weatherapi_flux_study01.action.ActionCreator
 import org.nunocky.weatherapi_flux_study01.dispatcher.Dispatcher
 import org.nunocky.weatherapi_flux_study01.store.Store
-import org.nunocky.weatherapi_flux_study01.store.StoreChangeEvent
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -39,55 +38,33 @@ class MainActivity : AppCompatActivity() {
         button.setOnClickListener {
             actionCreator.fetchWeather(400040)
         }
+
+        store.processing.observe(this, Observer {
+            button.isEnabled = !it
+        })
+
+        store.title.observe(this, Observer {
+            tvTitle.text = it
+        })
+
+        store.description.observe(this, Observer {
+            tvDescription.text = it
+        })
+
+        store.imageUrl.observe(this, Observer {
+            if (it.isNotEmpty()) {
+                Picasso.get().load(it).into(imageView)
+            }
+        })
     }
 
     override fun onResume() {
         super.onResume()
-        store.register(this)
         dispatcher.register(store)
-
-        updateUI()
     }
 
     override fun onPause() {
         super.onPause()
-        store.unregister(this)
         dispatcher.unregister(store)
-    }
-
-    private fun updateUI() {
-        if (store.isError) {
-            button.isEnabled = true
-            tvTitle.text = "Network Error"
-            tvDescription.text = ""
-            imageView.setImageBitmap(null)
-            return
-        }
-
-        if (store.isProcessing) {
-            button.isEnabled = false
-
-            tvTitle.text = ""
-            tvDescription.text = ""
-            imageView.setImageBitmap(null)
-        } else {
-            button.isEnabled = true
-
-            tvTitle.text = store.response.title
-            tvDescription.text = store.response.description.text
-
-            if (store.response.forecasts.count() > 0) {
-                store.response.forecasts[0].image.url.apply {
-                    if (this.isNotEmpty()) {
-                        Picasso.get().load(this).into(imageView)
-                    }
-                }
-            }
-        }
-    }
-
-    @Subscribe
-    fun onEvent(event: StoreChangeEvent) {
-        updateUI()
     }
 }

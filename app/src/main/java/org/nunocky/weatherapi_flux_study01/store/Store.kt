@@ -1,7 +1,8 @@
 package org.nunocky.weatherapi_flux_study01.store
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.nunocky.weatherapi_flux_study01.action.Action
@@ -13,26 +14,17 @@ class Store : ViewModel() {
         private const val TAG = "Store"
     }
 
-    private var weatherResponse = WeatherResponse()
-    private var processing: Boolean = false
-    var networkException: Throwable? = null
+    private val _processing = MutableLiveData(false)
+    val processing: LiveData<Boolean> = _processing
 
-    val response: WeatherResponse
-        get() = weatherResponse
+    private val _title = MutableLiveData("")
+    val title: LiveData<String> = _title
 
-    val isProcessing: Boolean
-        get() = processing
+    private val _description = MutableLiveData("")
+    val description: LiveData<String> = _description
 
-    val isError: Boolean
-        get() = (networkException != null)
-
-    fun register(cls: Any?) {
-        EventBus.getDefault().register(cls)
-    }
-
-    fun unregister(cls: Any?) {
-        EventBus.getDefault().unregister(cls)
-    }
+    private val _imageUrl = MutableLiveData("")
+    val imageUrl: LiveData<String> = _imageUrl
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onEvent(event: Any) {
@@ -40,35 +32,36 @@ class Store : ViewModel() {
 
             when (event.type) {
                 WeatherApiActions.FETCH_START -> {
-                    processing = true
-                    weatherResponse = WeatherResponse()
-                    networkException = null
-                    emitStoreChange()
+                    _processing.value = true
+
+                    _title.value = ""
+                    _description.value = ""
+                    _imageUrl.value = ""
                 }
 
                 WeatherApiActions.FETCH_WEATHER -> {
-                    processing = false
                     val hash = event.getData()
-                    weatherResponse = hash?.get("response") as WeatherResponse
-                    networkException = null
-                    emitStoreChange()
+                    val response = hash?.get("response") as WeatherResponse
+
+                    _processing.value = false
+
+                    _title.value = response.title
+                    _description.value = response.description.text
+                    _imageUrl.value = response.forecasts[0].image.url
                 }
 
                 WeatherApiActions.NETWORK_ERROR -> {
-                    processing = false
-                    weatherResponse = WeatherResponse()
-
                     val hash = event.getData()
                     val exception = hash?.get("exception") as Exception
-                    networkException = exception
-                    emitStoreChange()
+
+                    _processing.value = false
+
+                    _title.value = "Network Error"
+                    _description.value = ""
+                    _imageUrl.value = ""
                 }
             }
         }
-    }
-
-    private fun emitStoreChange() {
-        EventBus.getDefault().post(ApiStoreChangeEvent())
     }
 }
 
